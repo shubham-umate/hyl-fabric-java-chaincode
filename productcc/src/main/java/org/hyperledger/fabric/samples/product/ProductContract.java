@@ -3,6 +3,7 @@ package org.hyperledger.fabric.samples.product;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.ContractInterface;
 import org.hyperledger.fabric.contract.annotation.Contact;
@@ -16,7 +17,6 @@ import org.hyperledger.fabric.shim.ChaincodeStub;
 import org.hyperledger.fabric.shim.ledger.KeyValue;
 import org.hyperledger.fabric.shim.ledger.QueryResultsIterator;
 
-import com.owlike.genson.Genson;
 
 @Contract(
         name = "productcc",
@@ -34,7 +34,7 @@ import com.owlike.genson.Genson;
 @Default
 public final class ProductContract implements ContractInterface {
 
-    private final Genson genson = new Genson();
+    private final Gson gson = new Gson();
 
     private enum ProductContractErrors {
         PRODUCT_NOT_FOUND,
@@ -68,7 +68,7 @@ public final class ProductContract implements ContractInterface {
         }
 
         Product product = new Product(productID, productName, productPrice, productOwner, productDetails);
-        String productJSON = genson.serialize(product);
+        String productJSON = gson.toJson(product);
         stub.putStringState(productID, productJSON);
 
         return product;
@@ -86,7 +86,7 @@ public final class ProductContract implements ContractInterface {
             throw new ChaincodeException(errorMessage, ProductContractErrors.PRODUCT_NOT_FOUND.toString());
         }
 
-        Product product = genson.deserialize(productJSON, Product.class);
+        Product product = gson.fromJson(productJSON, Product.class);
         return product;
     }
 
@@ -105,7 +105,7 @@ public final class ProductContract implements ContractInterface {
         }
 
         Product newProduct = new Product(productID, productName, productPrice, productOwner, productDetails);
-        String newProductJSON = genson.serialize(newProduct);
+        String newProductJSON = gson.toJson(newProduct);
         stub.putStringState(productID, newProductJSON);
 
         return newProduct;
@@ -124,6 +124,14 @@ public final class ProductContract implements ContractInterface {
 
         stub.delState(productID);
     }
+
+    @Transaction(intent = Transaction.TYPE.SUBMIT)
+    public void DeleteProducts(final Context ctx) {
+        ChaincodeStub stub = ctx.getStub();
+        stub.delState("");
+    }
+
+
 
 
     @Transaction(intent = Transaction.TYPE.EVALUATE)
@@ -149,12 +157,12 @@ public final class ProductContract implements ContractInterface {
         QueryResultsIterator<KeyValue> results = stub.getStateByRange("", "");
 
         for (KeyValue result: results) {
-            Product product = genson.deserialize(result.getStringValue(), Product.class);
+            Product product = gson.fromJson(result.getStringValue(), Product.class);
             queryResults.add(product);
             System.out.println(product);
         }
 
-        final String response = genson.serialize(queryResults);
+        final String response = gson.toJson(queryResults);
 
         return response;
     }

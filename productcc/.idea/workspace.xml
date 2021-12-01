@@ -55,6 +55,7 @@
     <option name="myCommands">
       <command value="gradle clean" />
       <command value="gradle build" />
+      <command value="gradle installDist" />
     </option>
   </component>
   <component name="RunManager" selected="Gradle.productcc [installDist]">
