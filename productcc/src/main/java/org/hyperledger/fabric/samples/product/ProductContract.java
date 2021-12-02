@@ -1,9 +1,11 @@
 package org.hyperledger.fabric.samples.product;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.ContractInterface;
 import org.hyperledger.fabric.contract.annotation.Contact;
@@ -125,11 +127,6 @@ public final class ProductContract implements ContractInterface {
         stub.delState(productID);
     }
 
-    @Transaction(intent = Transaction.TYPE.SUBMIT)
-    public void DeleteProducts(final Context ctx) {
-        ChaincodeStub stub = ctx.getStub();
-        stub.delState("");
-    }
 
 
 
@@ -163,6 +160,37 @@ public final class ProductContract implements ContractInterface {
         }
 
         final String response = gson.toJson(queryResults);
+
+        return response;
+    }
+
+    @Transaction(intent = Transaction.TYPE.EVALUATE)
+    public String DeleteAllProducts(final Context ctx) {
+        ChaincodeStub stub = ctx.getStub();
+
+        List<Product> queryResults = new ArrayList<Product>();
+
+        // To retrieve all products from the ledger use getStateByRange with empty startKey & endKey.
+        // Giving empty startKey & endKey is interpreted as all the keys from beginning to end.
+        // As another example, if you use startKey = 'product0', endKey = 'product9' ,
+        // then getStateByRange will retrieve product with keys between product0 (inclusive) and product9 (exclusive) in lexical order.
+        QueryResultsIterator<KeyValue> results = stub.getStateByRange("", "");
+
+        for (KeyValue result: results) {
+            Product product = gson.fromJson(result.getStringValue(), Product.class);
+            queryResults.add(product);
+            System.out.println(product);
+        }
+
+        final String response = gson.toJson(queryResults);
+
+        Type productTypeList = new TypeToken<ArrayList<Product>>(){}.getType();
+
+        List<Product> productList = gson.fromJson(response,productTypeList);
+
+        for(Product product: productList){
+            stub.delState(product.getProductId());
+        }
 
         return response;
     }

@@ -1,5 +1,6 @@
 org/hyperledger/fabric/samples/product/ProductContract.java
  org.hyperledger.fabric.samples.product.ProductContract
+ org.hyperledger.fabric.samples.product.ProductContract$1
  org.hyperledger.fabric.samples.product.ProductContract$ProductContractErrors
 org/hyperledger/fabric/samples/product/Product.java
  org.hyperledger.fabric.samples.product.Product
