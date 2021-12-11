@@ -187,7 +187,9 @@ public final class ProductContract implements ContractInterface {
         Type productTypeList = new TypeToken<ArrayList<Product>>(){}.getType();
 
         List<Product> productList = gson.fromJson(response,productTypeList);
-
+        if(productList.size()==0){
+            throw new ProductException("No Products found to delete",200);
+        }
         for(Product product: productList){
             stub.delState(product.getProductId());
         }
