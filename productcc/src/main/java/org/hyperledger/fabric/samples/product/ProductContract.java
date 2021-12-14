@@ -14,6 +14,7 @@ import org.hyperledger.fabric.contract.annotation.Default;
 import org.hyperledger.fabric.contract.annotation.Info;
 import org.hyperledger.fabric.contract.annotation.License;
 import org.hyperledger.fabric.contract.annotation.Transaction;
+import org.hyperledger.fabric.shim.ChaincodeBase;
 import org.hyperledger.fabric.shim.ChaincodeException;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 import org.hyperledger.fabric.shim.ledger.KeyValue;
@@ -34,7 +35,7 @@ import org.hyperledger.fabric.shim.ledger.QueryResultsIterator;
                         name = "Adrian Transfer",
                         url = "https://hyperledger.example.com")))
 @Default
-public final class ProductContract implements ContractInterface {
+public final class ProductContract implements ContractInterface  {
 
     private final Gson gson = new Gson();
 
@@ -187,9 +188,7 @@ public final class ProductContract implements ContractInterface {
         Type productTypeList = new TypeToken<ArrayList<Product>>(){}.getType();
 
         List<Product> productList = gson.fromJson(response,productTypeList);
-        if(productList.size()==0){
-            throw new ProductException("No Products found to delete",200);
-        }
+
         for(Product product: productList){
             stub.delState(product.getProductId());
         }
