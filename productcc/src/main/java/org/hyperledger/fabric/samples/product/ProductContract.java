@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.hyperledger.fabric.contract.ClientIdentity;
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.ContractInterface;
 import org.hyperledger.fabric.contract.annotation.Contact;
@@ -118,7 +119,12 @@ public final class ProductContract implements ContractInterface  {
     @Transaction(intent = Transaction.TYPE.SUBMIT)
     public void DeleteProduct(final Context ctx, final String productID) {
         ChaincodeStub stub = ctx.getStub();
-
+        ClientIdentity identity = ctx.getClientIdentity();
+        String id=identity.getId();
+        String attributeValue = identity.getAttributeValue("role");
+        if(!attributeValue.equals("user")){
+            throw new ChaincodeException("Unauthorized User");
+        }
         if (!ProductExists(ctx, productID)) {
             String errorMessage = String.format("Product %s does not exist", productID);
             System.out.println(errorMessage);
