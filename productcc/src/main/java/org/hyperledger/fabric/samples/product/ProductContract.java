@@ -49,6 +49,12 @@ public final class ProductContract implements ContractInterface  {
     @Transaction(intent = Transaction.TYPE.SUBMIT)
     public void InitLedger(final Context ctx) {
         ChaincodeStub stub = ctx.getStub();
+        ClientIdentity identity = ctx.getClientIdentity();
+        String id=identity.getId();
+        String attributeValue = identity.getAttributeValue("role");
+        if(!attributeValue.equals("user")){
+            throw new ChaincodeException("Unauthorized User");
+        }
 
         CreateProduct(ctx, "product1", "Iphone", 5000, "Tomoko", "Apple");
         CreateProduct(ctx, "product2", "MacBook", 7000, "Brad", "Apple");
@@ -119,6 +125,7 @@ public final class ProductContract implements ContractInterface  {
     @Transaction(intent = Transaction.TYPE.SUBMIT)
     public void DeleteProduct(final Context ctx, final String productID) {
         ChaincodeStub stub = ctx.getStub();
+
         ClientIdentity identity = ctx.getClientIdentity();
         String id=identity.getId();
         String attributeValue = identity.getAttributeValue("role");
